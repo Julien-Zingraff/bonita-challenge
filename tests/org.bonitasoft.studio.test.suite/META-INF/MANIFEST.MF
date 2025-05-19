@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test Suite Plugin-in
+Bundle-SymbolicName: org.bonitasoft.studio.test.suite
+Bundle-Version: 10.3.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ org.bonitasoft.studio.tests,
+ org.bonitasoft.studio.common,
+ org.bonitasoft.studio.preferences,
+ org.eclipse.ui,
+ org.eclipse.ui.browser,
+ org.junit,
+ org.bonitasoft.studio.engine
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-Vendor: BonitaSoft S.A.
+Export-Package: org.bonitasoft.studio.test.suite

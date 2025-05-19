@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Connector Tests Fragment
+Bundle-SymbolicName: org.bonitasoft.studio.sqlbuilder.ex.tests
+Bundle-Version: 10.3.0.qualifier
+Bundle-Vendor: Bonitasoft S.A.
+Fragment-Host: org.bonitasoft.studio.sqlbuilder.ex
+Automatic-Module-Name: org.bonitasoft.studio.sqlbuilder.ex.tests
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: assertj-core,
+ org.mockito.mockito-core,
+ org.mockito.junit-jupiter,
+ org.bonitasoft.studio.tests-utils,
+ org.objenesis,
+ net.bytebuddy.byte-buddy,
+ junit-jupiter-api

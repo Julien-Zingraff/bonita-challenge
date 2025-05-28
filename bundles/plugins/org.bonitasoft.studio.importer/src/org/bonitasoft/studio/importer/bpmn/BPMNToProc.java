@@ -176,6 +176,7 @@ public class BPMNToProc extends ToProcProcessor {
     private List<TProcess> bpmnProcess;
     //   private final List<Object> errorElements = new ArrayList<Object>();
     private TDefinitions definitions;
+    private BPMNToolExporter bpmnToolExporter;
     private EList<TRootElement> rootElements;
     protected Diagram diagram;
     private IProcBuilder builder;
@@ -306,6 +307,8 @@ public class BPMNToProc extends ToProcProcessor {
 
             updateXMLNamespaceIfNeeded(docRoot);
             importFromBPMN(docRootDefinitions);
+            BPMNToolExporter bpmnToolExporter = this.getBpmnToolExporter();
+            BonitaStudioLog.info(String.format("BPMN file imported from %s version %s", bpmnToolExporter.getName(), bpmnToolExporter.getVersion()));
 
             builder.done();
             return result;
@@ -313,6 +316,43 @@ public class BPMNToProc extends ToProcProcessor {
             BonitaStudioLog.error(e);
         }
         return null;
+    }
+
+    //TODO: Refactor it from createDiagram
+    protected TDefinitions getTDefinitionsFromFile(URL sourceBPMNUrl) {
+        final File f = new File(URLDecoder.decode(sourceBPMNUrl.getFile(),
+            "UTF-8"));
+        final Resource resource = resourceSet.getResource(
+            URI.createURI(f.toURI().toString()), true);
+
+        final EObject rootContent = resource.getContents().get(0);
+        if (rootContent == null || !(rootContent instanceof DocumentRoot)) {
+            throw new Exception("Document type not supported");
+        }
+
+        final DocumentRoot docRoot = (DocumentRoot) rootContent;
+
+        final TDefinitions docRootDefinitions = docRoot.getDefinitions();
+        if (docRootDefinitions == null) {
+            throw new Exception("Document type not supported");
+        }
+        return docRootDefinitions;
+    }
+
+    protected Optional<BPMNToolExporter> getToolExporterFromImportFile(File fileToImport) {
+        TDefinitions docRootDefinitions = getTDefinitionsFromFile(fileToImport.toURI().toURL());
+        return this.getBPMNToolExporter(docRootDefinitions);
+    }
+
+    private Optional<BPMNToolExporter> getBPMNToolExporter(TDefinitions definitions) {
+        Optional<BPMNToolExporter> bpmnToolExporterOptional = new
+        String toolName = definitions.getExporter();
+        String toolVersion = definitions.getExporterVersion();
+        if (toolName == null) {
+            return Optional.empty();
+        }
+        BPMNToolExporter exporter = new BPMNToolExporter(toolName, toolVersion);
+        return Optional.of(exporter);
     }
 
     protected void updateXMLNamespaceIfNeeded(final DocumentRoot docRoot) {
@@ -2229,6 +2269,14 @@ public class BPMNToProc extends ToProcProcessor {
             }
         }
         return null;
+    }
+
+    private BPMNToolExporter getBpmnToolExporter() {
+        this.bpmnToolExporter
+    }
+
+    private void setBpmnToolExporter(BPMNToolExporter bpmnToolExporter) {
+        this.bpmnToolExporter = bpmnToolExporter;
     }
 
     private TDataObject getDataObjectNameByName(

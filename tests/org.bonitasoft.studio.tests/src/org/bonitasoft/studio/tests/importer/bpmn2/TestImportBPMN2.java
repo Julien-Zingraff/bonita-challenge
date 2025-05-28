@@ -35,6 +35,8 @@ import org.bonitasoft.studio.common.emf.tools.ModelHelper;
 import org.bonitasoft.studio.importer.bpmn.BPMNToProc;
 import org.bonitasoft.studio.tests.util.InitialProjectRule;
 import org.eclipse.core.runtime.FileLocator;
+// Ensure the necessary Eclipse dependencies are added to your project, e.g.,
+// org.eclipse.core.runtime in your build tool or libraries.
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
@@ -77,6 +79,62 @@ public class TestImportBPMN2 {
 
         checkContent(mainProcess, 4, 14, 3, 0, 1, null);
         resource.unload();
+    }
+
+    // Cases
+    // 1. BPMN File without exporter => prompt user
+    // 1.1 user select value from list => Print value
+    // 1.2 user select Other and enter value => Print value
+    // 1.3 user enter cancel => abort Import
+    // Note: only Manage exporter not exporterVersion
+
+    // 2. BPMN File with exporter only => print value
+
+    // 3. BPMN File with exporter and version => print value
+
+    @Test
+    public void shouldRetrieveFromDefinitionExporterOnly() throws Exception {
+        URL bpmnResource = FileLocator.toFileURL(TestImportBPMN2.class.getResource("definitionsTestExporter.bpmn")); //$NON-NLS-1$
+        BPMNToProc bpmnToProc = new BPMNToProc();
+        destFile = bpmnToProc.createDiagram(bpmnResource, new NullProgressMonitor());
+
+        ResourceSet resourceSet = new ResourceSetImpl();
+        Resource resource = resourceSet.getResource(toEMFURI(destFile), true);
+        MainProcess mainProcess = (MainProcess) resource.getContents().get(0);
+
+        checkContent(mainProcess, 4, 14, 3, 0, 1, null);
+        resource.unload();
+        //Assert Exporter is JZI
+    }
+
+    @Test
+    public void shouldRetrieveFromDefinitionExporterVersionOnly() throws Exception {
+        URL bpmnResource = FileLocator.toFileURL(TestImportBPMN2.class.getResource("definitionsTestExporter.bpmn")); //$NON-NLS-1$
+        BPMNToProc bpmnToProc = new BPMNToProc();
+        destFile = bpmnToProc.createDiagram(bpmnResource, new NullProgressMonitor());
+
+        ResourceSet resourceSet = new ResourceSetImpl();
+        Resource resource = resourceSet.getResource(toEMFURI(destFile), true);
+        MainProcess mainProcess = (MainProcess) resource.getContents().get(0);
+
+        checkContent(mainProcess, 4, 14, 3, 0, 1, null);
+        resource.unload();
+        //Assert ExporterVersion is 6.66
+    }
+
+    @Test
+    public void shouldRetrieveFromDefinitionExporterAndVersion() throws Exception {
+        URL bpmnResource = FileLocator.toFileURL(TestImportBPMN2.class.getResource("definitionsTestExporter.bpmn")); //$NON-NLS-1$
+        BPMNToProc bpmnToProc = new BPMNToProc();
+        destFile = bpmnToProc.createDiagram(bpmnResource, new NullProgressMonitor());
+
+        ResourceSet resourceSet = new ResourceSetImpl();
+        Resource resource = resourceSet.getResource(toEMFURI(destFile), true);
+        MainProcess mainProcess = (MainProcess) resource.getContents().get(0);
+
+        checkContent(mainProcess, 4, 14, 3, 0, 1, null);
+        resource.unload();
+        //Assert Exporter is JZI and ExporterVersion is 1.0
     }
 
     @Test

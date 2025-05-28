@@ -73,6 +73,23 @@ public class ImportFileOperation implements IRunnableWithProgress {
         processor = importerFactory.createProcessor(fileToImport.getName());
         processor.setRepository(RepositoryManager.getInstance().getCurrentRepository().orElseThrow().getProjectId());
         processor.setProgressDialog(progressDialog);
+
+        // Before run Import, manager Tool Exporter in Import File
+        Optional<BPMNToolExporter> bpmnToolExporterOptional = processor.getToolExporterFromImportFile(fileToImport);
+        if (bpmnToolExporterOptional.isEmpty()) {
+            // prompt User
+            // Dialog.???
+            BPMNToolExporter bpmnToolExporter = new BPMNToolExporter();
+            //Set with user values
+            if (Dialog.CANCEL) {
+                //Abort Import
+            }
+
+            // set exporter
+            processor.setBPMNToolExporter(bpmnToolExporter);
+        } else {
+            processor.setBPMNToolExporter(bpmnToolExporterOptional.get());
+        }
         try {
             processor.createDiagram(fileToImport.toURI().toURL(), monitor);
         } catch (final MalformedURLException e) {
@@ -82,6 +99,9 @@ public class ImportFileOperation implements IRunnableWithProgress {
             status = new Status(IStatus.ERROR, ImporterPlugin.PLUGIN_ID, e.getMessage(), e);
             throw new InvocationTargetException(e, e.getMessage());
         }
+        //Display Tool Exporter after Import
+        //Dialog.???(processor.getBPMNToolExporter());
+
         //handleErrors(processor);
         addFileStoresToOpen(processor);
         status = processor.getStatus();
@@ -130,5 +150,12 @@ public class ImportFileOperation implements IRunnableWithProgress {
     public ImportStatusDialogHandler getImportStatusDialogHandler(final IStatus status) {
         return processor.getImportStatusDialogHandler(status);
     }
+
+    public boolean isExporterNotPresentInImportFile() {
+        processor = importerFactory.createProcessor(fileToImport.getName());
+        return processor.isExporterNotPresentInImportFile(fileToImport);
+    }
+
+
 
 }

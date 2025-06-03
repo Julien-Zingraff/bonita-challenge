@@ -40,18 +40,7 @@ public class ImportBPMMNFileIT {
 
     @Rule
     public SWTGefBotRule botRule = new SWTGefBotRule(bot);
-
-
-    // Cases
-    // 1. BPMN File without exporter => prompt user
-    // 1.1 user select value from list => Print value
-    // 1.2 user select Other and enter value => Print value
-    // 1.3 user enter cancel => abort Import
-    // Note: only Manage exporter not exporterVersion
-
-    // 2. BPMN File with exporter only => print value
-
-    // 3. BPMN File with exporter and version => print value
+    
 
     @Ignore("Deprecated due to exporter feature")
     @Test

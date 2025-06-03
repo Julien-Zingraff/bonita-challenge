@@ -155,6 +155,8 @@ public class ImportFileWizardPage extends WizardPage {
             }
         });
 
+        // TODO: Manage Tool Exporter
+
         importList.addSelectionChangedListener(event ->
                 updatePanel((ImporterFactory) importerFactoryObservable.getValue(), descriptionImage, descriptionLabel));
         importList.addDoubleClickListener(event -> {
@@ -184,6 +186,12 @@ public class ImportFileWizardPage extends WizardPage {
         final String[] filterExt = filterExtensions.split(",");
         fd.setFilterExtensions(filterExt);
         return fd.open();
+    }
+
+    protected String openToolExporterDialog() {
+        // TODO: open proper Eclipse Widget for:
+        // Let Let the user choose from a predefined list of common tools (e.g. Camunda, Others...)
+        // If “Others” is selected, provide a free-text input to specify the tool name manually
     }
 
     private String getLastPath() {

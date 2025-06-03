@@ -60,4 +60,8 @@ public class ImportFileWizard extends Wizard {
         return importFileData.getImporterFactory();
     }
 
+    public String getToolExporterName() {
+        return importFileData.getToolExporterName();
+    }
+
 }

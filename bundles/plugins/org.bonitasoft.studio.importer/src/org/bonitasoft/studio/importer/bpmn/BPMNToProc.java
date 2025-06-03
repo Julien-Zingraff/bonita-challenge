@@ -176,6 +176,7 @@ public class BPMNToProc extends ToProcProcessor {
     private List<TProcess> bpmnProcess;
     //   private final List<Object> errorElements = new ArrayList<Object>();
     private TDefinitions definitions;
+    private BPMNToolExporter bpmnToolExporter;
     private EList<TRootElement> rootElements;
     protected Diagram diagram;
     private IProcBuilder builder;
@@ -282,22 +283,7 @@ public class BPMNToProc extends ToProcProcessor {
         extensionToFactoryMap.put(getExtension(), new DiResourceFactoryImpl());
 
         try {
-            final File f = new File(URLDecoder.decode(sourceBPMNUrl.getFile(),
-                    "UTF-8"));
-            final Resource resource = resourceSet.getResource(
-                    URI.createURI(f.toURI().toString()), true);
-
-            final EObject rootContent = resource.getContents().get(0);
-            if (rootContent == null || !(rootContent instanceof DocumentRoot)) {
-                throw new Exception("Document type not supported");
-            }
-
-            final DocumentRoot docRoot = (DocumentRoot) rootContent;
-
-            final TDefinitions docRootDefinitions = docRoot.getDefinitions();
-            if (docRootDefinitions == null) {
-                throw new Exception("Document type not supported");
-            }
+            final TDefinitions docRootDefinitions = BPMNImporterUtil.getTDefinitionsFromFile(sourceBPMNUrl);
             final String id = calculateBonitaDiagramId(docRootDefinitions);
             final String name = calculateBonitaDiagramName(docRootDefinitions);
             result = File.createTempFile(id, ".proc");
@@ -314,6 +300,8 @@ public class BPMNToProc extends ToProcProcessor {
         }
         return null;
     }
+
+
 
     protected void updateXMLNamespaceIfNeeded(final DocumentRoot docRoot) {
         for (final java.util.Map.Entry<String, String> entry : docRoot
@@ -2229,6 +2217,14 @@ public class BPMNToProc extends ToProcProcessor {
             }
         }
         return null;
+    }
+
+    private BPMNToolExporter getBpmnToolExporter() {
+        return this.bpmnToolExporter
+    }
+
+    private void setBpmnToolExporter(BPMNToolExporter bpmnToolExporter) {
+        this.bpmnToolExporter = bpmnToolExporter;
     }
 
     private TDataObject getDataObjectNameByName(

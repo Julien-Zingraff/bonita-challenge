@@ -18,6 +18,8 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.util.Optional;
 
 import org.bonitasoft.studio.common.log.BonitaStudioLog;
 import org.bonitasoft.studio.common.repository.RepositoryManager;
@@ -27,6 +29,9 @@ import org.bonitasoft.studio.common.ui.jface.CustomWizardDialog;
 import org.bonitasoft.studio.diagram.custom.repository.DiagramFileStore;
 import org.bonitasoft.studio.diagram.custom.repository.DiagramRepositoryStore;
 import org.bonitasoft.studio.importer.ImporterPlugin;
+import org.bonitasoft.studio.importer.ImporterUtil;
+import org.bonitasoft.studio.importer.bpmn.BPMNImporterUtil;
+import org.bonitasoft.studio.importer.bpmn.BPMNToolExporter;
 import org.bonitasoft.studio.importer.i18n.Messages;
 import org.bonitasoft.studio.importer.processors.ImportFileOperation;
 import org.bonitasoft.studio.importer.ui.wizard.ImportFileWizard;
@@ -44,14 +49,25 @@ public class ImportOtherHandler {
     @Execute
     public void execute() {
         final ImportFileWizard importFileWizard = createImportWizard();
-        if (new CustomWizardDialog(Display.getDefault().getActiveShell(), importFileWizard, Messages.importButtonLabel)
-                .open() == Dialog.OK) {
+        CustomWizardDialog customWizardDialog = new CustomWizardDialog(Display.getDefault().getActiveShell(), importFileWizard, Messages.importButtonLabel);
+        if (customWizardDialog.open() == Dialog.OK) {
             final File selectedFile = new File(importFileWizard.getSelectedFilePath());
             final SkippableProgressMonitorJobsDialog progressManager = new SkippableProgressMonitorJobsDialog(
                     Display.getDefault().getActiveShell());
+
             final ImportFileOperation operation = createImportFileOperation(importFileWizard, selectedFile, progressManager);
+
             try {
+                // 1 & 2 => Manage Tool Exporter
+                BPMNToolExporter bpmnToolExporter = this.manageToolExporter(selectedFile, customWizardDialog, importFileWizard);
+
                 progressManager.run(false, false, operation);
+
+                // 3 => Display Tool Exporter after Import
+                //use customWizardDialog to display BPMNToolExporter
+
+                // 4 => Log the import Event
+                this.logImportEvent(bpmnToolExporter);
             } catch (final InvocationTargetException | InterruptedException e) {
                 final Throwable t = e instanceof InvocationTargetException
                         ? ((InvocationTargetException) e).getTargetException() : e;
@@ -102,6 +118,36 @@ public class ImportOtherHandler {
             return true;
         }
         return false;
+    }
+
+    private BPMNToolExporter manageToolExporter(File selectedFile, CustomWizardDialog customWizardDialog, ImportFileWizard importFileWizard) throws InterruptedException, InvocationTargetException {
+
+        try {
+            Optional<BPMNToolExporter> bpmnToolExporterOptional = BPMNImporterUtil.getToolExporterFromImportFile(selectedFile.toURI().toURL());
+            if (bpmnToolExporterOptional.isEmpty()) {
+                // TODO: prompt User
+                // use customWizardDialog with updated importFileWizard
+                // Update ImportFileWizardPage to manage Selection of ToolExporter or Others from User
+
+                //Set with user values
+                if (customWizardDialog.open() == Dialog.CANCEL) {
+                    //Abort Import
+                    //  status = new Status(IStatus.ERROR, ImporterPlugin.PLUGIN_ID, "ImportFileWizard Aborted";
+                    //  throw new InvocationTargetException("ImportFileWizard Aborted");
+                }
+
+                String toolExporter = importFileWizard.getToolExporterName();
+                return new BPMNToolExporter(toolExporter, null);
+            } else {
+                return bpmnToolExporterOptional.get();
+            }
+        } catch (MalformedURLException e) {
+            throw new InvocationTargetException(e);
+        }
+    }
+
+    private void logImportEvent(BPMNToolExporter bpmnToolExporter) {
+        BonitaStudioLog.info(String.format("BPMN file imported from %s version %s", bpmnToolExporter.getName(), bpmnToolExporter.getVersion()));
     }
 
 }

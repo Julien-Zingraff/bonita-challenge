@@ -23,6 +23,8 @@ public class ImportFileData {
 
     private String selectedRepositoryName;
 
+    private String toolExporterName;
+
     public String getSelectedRepositoryName() {
         return selectedRepositoryName;
     }
@@ -47,4 +49,11 @@ public class ImportFileData {
         this.filePath = filePath;
     }
 
+    public String getToolExporterName() {
+        return toolExporterName;
+    }
+
+    public void setToolExporterName(String toolExporterName) {
+        this.toolExporterName = toolExporterName;
+    }
 }

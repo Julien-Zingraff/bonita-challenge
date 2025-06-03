@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.bonitasoft.studio.common.repository.RepositoryManager;
 import org.bonitasoft.studio.common.repository.model.IRepositoryFileStore;
@@ -29,6 +30,7 @@ import org.bonitasoft.studio.diagram.custom.repository.DiagramFileStore;
 import org.bonitasoft.studio.diagram.custom.repository.DiagramRepositoryStore;
 import org.bonitasoft.studio.importer.ImporterFactory;
 import org.bonitasoft.studio.importer.ImporterPlugin;
+import org.bonitasoft.studio.importer.bpmn.BPMNToolExporter;
 import org.bonitasoft.studio.importer.handler.ImportStatusDialogHandler;
 import org.bonitasoft.studio.importer.i18n.Messages;
 import org.bonitasoft.studio.ui.dialog.SkippableProgressMonitorJobsDialog;
@@ -70,6 +72,7 @@ public class ImportFileOperation implements IRunnableWithProgress {
     public void run(final IProgressMonitor monitor) throws InvocationTargetException,
             InterruptedException {
         monitor.beginTask(Messages.importProcessProgressDialog, IProgressMonitor.UNKNOWN);
+        // TODO: Extract CreateProcessor in a singleton to be used outside from RUN.
         processor = importerFactory.createProcessor(fileToImport.getName());
         processor.setRepository(RepositoryManager.getInstance().getCurrentRepository().orElseThrow().getProjectId());
         processor.setProgressDialog(progressDialog);
@@ -82,6 +85,7 @@ public class ImportFileOperation implements IRunnableWithProgress {
             status = new Status(IStatus.ERROR, ImporterPlugin.PLUGIN_ID, e.getMessage(), e);
             throw new InvocationTargetException(e, e.getMessage());
         }
+
         //handleErrors(processor);
         addFileStoresToOpen(processor);
         status = processor.getStatus();
@@ -130,5 +134,12 @@ public class ImportFileOperation implements IRunnableWithProgress {
     public ImportStatusDialogHandler getImportStatusDialogHandler(final IStatus status) {
         return processor.getImportStatusDialogHandler(status);
     }
+
+    public boolean isExporterNotPresentInImportFile() {
+        processor = importerFactory.createProcessor(fileToImport.getName());
+        return processor.isExporterNotPresentInImportFile(fileToImport);
+    }
+
+
 
 }

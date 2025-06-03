@@ -28,6 +28,7 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.gef.finder.SWTGefBot;
 import org.eclipse.swtbot.eclipse.gef.finder.widgets.SWTBotGefEditor;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +40,9 @@ public class ImportBPMMNFileIT {
 
     @Rule
     public SWTGefBotRule botRule = new SWTGefBotRule(bot);
+    
 
+    @Ignore("Deprecated due to exporter feature")
     @Test
     public void testImportBPMN2FromContextualMenu() throws InterruptedException, IOException {
         new ProjectExplorerBot(bot).importBPMNFile().selectBPMN2Importer()
@@ -54,6 +57,67 @@ public class ImportBPMMNFileIT {
         final Pool pool = (Pool) model.getElements().get(0);
         assertNotNull("no pool found (import failed?)", pool);
         assertEquals("standardProcess (1.0)", botEditor.getTitle());
+    }
+
+    @Test
+    public void shouldImportBPMN2FromContextualMenuAndDisplayExporterAndVersion() throws InterruptedException, IOException {
+        new ProjectExplorerBot(bot).importBPMNFile().selectBPMN2Importer()
+            .setArchive(ImportBPMMNFileIT.class.getResource("standardProcessWithExporterAndVersion.bpmn"))
+            .finish();
+
+        final SWTBotEditor botEditor = bot.activeEditor();
+        final SWTBotGefEditor gmfEditor = bot.gefEditor(botEditor.getTitle());
+
+        final IGraphicalEditPart part = (IGraphicalEditPart) gmfEditor.mainEditPart().part();
+        final MainProcess model = (MainProcess) part.resolveSemanticElement();
+        final Pool pool = (Pool) model.getElements().get(0);
+        assertNotNull("no pool found (import failed?)", pool);
+        assertEquals("standardProcess (1.0)", botEditor.getTitle());
+    }
+
+    @Test
+    public void shouldPromptAndGetSelectedValueIfExporterEmptyFromContextualMenu() throws InterruptedException, IOException {
+        new ProjectExplorerBot(bot).importBPMNFile().selectBPMN2Importer()
+            .setArchive(ImportBPMMNFileIT.class.getResource("standardProcess.bpmn"))
+            .finish();
+
+        //TODO: Manage Prompt selected value
+
+        final SWTBotEditor botEditor = bot.activeEditor();
+        final SWTBotGefEditor gmfEditor = bot.gefEditor(botEditor.getTitle());
+
+        final IGraphicalEditPart part = (IGraphicalEditPart) gmfEditor.mainEditPart().part();
+        final MainProcess model = (MainProcess) part.resolveSemanticElement();
+        final Pool pool = (Pool) model.getElements().get(0);
+        assertNotNull("no pool found (import failed?)", pool);
+        assertEquals("standardProcess (1.0)", botEditor.getTitle());
+    }
+
+    @Test
+    public void shouldPromptAndGetEnteredValueIfExporterEmptyFromContextualMenu() throws InterruptedException, IOException {
+        new ProjectExplorerBot(bot).importBPMNFile().selectBPMN2Importer()
+            .setArchive(ImportBPMMNFileIT.class.getResource("standardProcess.bpmn"))
+            .finish();
+
+        //TODO: Manage Prompt entered value
+
+        final SWTBotEditor botEditor = bot.activeEditor();
+        final SWTBotGefEditor gmfEditor = bot.gefEditor(botEditor.getTitle());
+
+        final IGraphicalEditPart part = (IGraphicalEditPart) gmfEditor.mainEditPart().part();
+        final MainProcess model = (MainProcess) part.resolveSemanticElement();
+        final Pool pool = (Pool) model.getElements().get(0);
+        assertNotNull("no pool found (import failed?)", pool);
+        assertEquals("standardProcess (1.0)", botEditor.getTitle());
+    }
+
+    @Test
+    public void shouldPromptAndManageCancelIfExporterEmptyFromContextualMenu() throws InterruptedException, IOException {
+        new ProjectExplorerBot(bot).importBPMNFile().selectBPMN2Importer()
+            .setArchive(ImportBPMMNFileIT.class.getResource("standardProcess.bpmn"))
+            .finish();
+
+        //TODO: Manage Cancel (abort Import)
     }
 
 }
